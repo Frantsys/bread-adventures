@@ -1,9 +1,22 @@
-[gd_scene load_steps=19 format=3 uid="uid://ch33if222el52"]
+[gd_scene format=3 uid="uid://ch33if222el52"]
 
 [ext_resource type="Texture2D" uid="uid://dx23lhwichl3r" path="res://sprites/1 - Penguin/Idle (16 x 16).png" id="1_3vyb7"]
 [ext_resource type="Script" uid="uid://ct1sd32ar3p0n" path="res://scripts/player.gd" id="1_g2els"]
+[ext_resource type="Texture2D" uid="uid://dxj4g3vp4qp04" path="res://sprites/1 - Penguin/Belly_Sliding (16 x 16).png" id="2_qlg0r"]
 [ext_resource type="Texture2D" uid="uid://dapbrx5dpp438" path="res://sprites/1 - Penguin/Jump (16 x 16).png" id="3_dqkch"]
 [ext_resource type="Texture2D" uid="uid://btqhtyr23c147" path="res://sprites/1 - Penguin/Waddling (16 x 16).png" id="4_qlg0r"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f1ej7"]
+atlas = ExtResource("2_qlg0r")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oprun"]
+atlas = ExtResource("2_qlg0r")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a8ls1"]
+atlas = ExtResource("2_qlg0r")
+region = Rect2(32, 0, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_g2els"]
 atlas = ExtResource("1_3vyb7")
@@ -57,6 +70,20 @@ region = Rect2(80, 0, 16, 16)
 animations = [{
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_f1ej7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oprun")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a8ls1")
+}],
+"loop": 1,
+"name": &"dash",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_g2els")
 }, {
 "duration": 1.0,
@@ -71,7 +98,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_tuyoq")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 8.0
 }, {
@@ -79,7 +106,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_fjrip")
 }],
-"loop": false,
+"loop": 0,
 "name": &"jump",
 "speed": 1.0
 }, {
@@ -102,7 +129,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_jej6c")
 }],
-"loop": true,
+"loop": 1,
 "name": &"walk",
 "speed": 12.0
 }]
@@ -111,20 +138,36 @@ animations = [{
 radius = 7.0
 height = 16.0
 
-[node name="Player" type="CharacterBody2D"]
+[node name="Player" type="CharacterBody2D" unique_id=1585280062 groups=["player"]]
 z_index = 1
 script = ExtResource("1_g2els")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=849790870]
 unique_name_in_owner = true
 sprite_frames = SubResource("SpriteFrames_fjrip")
-animation = &"idle"
+animation = &"dash"
 autoplay = "idle"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=597665878]
+limit_left = 0
+limit_top = 0
+limit_bottom = 208
+position_smoothing_enabled = true
+
+[node name="DashTimer" type="Timer" parent="." unique_id=592412068]
+wait_time = 0.25
+one_shot = true
+
+[node name="DashCooldown" type="Timer" parent="." unique_id=1445258081]
+one_shot = true
+
+[node name="ContactArea" type="Area2D" parent="." unique_id=683122870]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ContactArea" unique_id=946094358]
 shape = SubResource("CapsuleShape2D_smehm")
 
-[node name="Camera2D" type="Camera2D" parent="."]
-limit_left = 0
-limit_bottom = 150
-position_smoothing_enabled = true
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=272503399]
+shape = SubResource("CapsuleShape2D_smehm")
+
+[connection signal="timeout" from="DashTimer" to="." method="_on_dash_timer_timeout"]
+[connection signal="body_entered" from="ContactArea" to="." method="_on_area_2d_body_entered"]
