@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://ccsoja55n3htw"
+path="res://.godot/imported/Bread & Fred Main Theme [52e8dCnIbc8].mp3-d5fd4e11dea3d1947f178b2fe3aeb67a.mp3str"
+
+[deps]
+
+source_file="res://assets/Bread & Fred Main Theme [52e8dCnIbc8].mp3"
+dest_files=["res://.godot/imported/Bread & Fred Main Theme [52e8dCnIbc8].mp3-d5fd4e11dea3d1947f178b2fe3aeb67a.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
