@@ -1,0 +1,230 @@
+[gd_scene format=3 uid="uid://bmainmenu001"]
+
+[ext_resource type="Script" path="res://scripts/main_menu.gd" id="1_mm_script"]
+[ext_resource type="Texture2D" path="res://tiles/2 - Autumn Forest/Background parts/6 - Distant_trees.png" id="2_bg6"]
+[ext_resource type="Texture2D" path="res://tiles/2 - Autumn Forest/Background parts/5 - Tree_row_BG_2.png" id="3_bg5"]
+[ext_resource type="Texture2D" path="res://tiles/2 - Autumn Forest/Background parts/4 - Tree_row_BG_1.png" id="4_bg4"]
+[ext_resource type="Texture2D" path="res://tiles/2 - Autumn Forest/Background parts/3 - Bottom_leaf_piles.png" id="5_bg3"]
+[ext_resource type="Texture2D" path="res://tiles/2 - Autumn Forest/Background parts/2 - Trees.png" id="6_bg2"]
+[ext_resource type="Texture2D" path="res://tiles/2 - Autumn Forest/Background parts/1 - Leaf_top.png" id="7_bg1"]
+[ext_resource type="FontFile" path="res://assets/fonts/pixel_font.fnt" id="8_font"]
+[ext_resource type="Texture2D" path="res://sprites/1 - Penguin/Idle (16 x 16).png" id="9_p_idle"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0"]
+atlas = ExtResource("9_p_idle")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p1"]
+atlas = ExtResource("9_p_idle")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p2"]
+atlas = ExtResource("9_p_idle")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p3"]
+atlas = ExtResource("9_p_idle")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_menu_penguin"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p3")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 7.0
+}]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_panel"]
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+bg_color = Color(0.11, 0.08, 0.14, 0.86)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 2
+border_color = Color(0.95, 0.78, 0.42, 1)
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_normal"]
+content_margin_left = 12.0
+content_margin_top = 5.0
+content_margin_right = 12.0
+content_margin_bottom = 5.0
+bg_color = Color(0.78, 0.36, 0.14, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 2
+border_color = Color(1, 0.88, 0.45, 1)
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+content_margin_left = 12.0
+content_margin_top = 5.0
+content_margin_right = 12.0
+content_margin_bottom = 5.0
+bg_color = Color(0.92, 0.48, 0.18, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 2
+border_color = Color(1, 0.96, 0.7, 1)
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pressed"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 4.0
+bg_color = Color(0.55, 0.22, 0.08, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.95, 0.78, 0.42, 1)
+anti_aliasing = false
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_mm_script")
+
+[node name="BG6" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_bg6")
+stretch_mode = 2
+
+[node name="BG5" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_bg5")
+stretch_mode = 2
+
+[node name="BG4" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_bg4")
+stretch_mode = 2
+
+[node name="BG3" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("5_bg3")
+stretch_mode = 2
+
+[node name="BG2" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("6_bg2")
+stretch_mode = 2
+
+[node name="BG1" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("7_bg1")
+stretch_mode = 2
+
+[node name="PreviewPenguin" type="AnimatedSprite2D" parent="."]
+position = Vector2(144, 44)
+sprite_frames = SubResource("SpriteFrames_menu_penguin")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="CenterPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -96.0
+offset_top = -22.0
+offset_right = 96.0
+offset_bottom = 52.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_menu_panel")
+
+[node name="VBox" type="VBoxContainer" parent="CenterPanel"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="TitleLabel" type="Label" parent="CenterPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.42, 1)
+theme_override_colors/font_shadow_color = Color(0.06, 0.03, 0.08, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("8_font")
+theme_override_font_sizes/font_size = 16
+text = "BREAD ADVENTURES"
+horizontal_alignment = 1
+
+[node name="PlayButton" type="Button" parent="CenterPanel/VBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1, 0.98, 0.88, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.95, 0.85, 0.65, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("8_font")
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "JOGAR"
+
+[node name="ControlsLabel" type="Label" parent="CenterPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.9, 0.96, 1)
+theme_override_colors/font_shadow_color = Color(0.06, 0.03, 0.08, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("8_font")
+theme_override_font_sizes/font_size = 8
+text = "SPACE: PULO  DASH: SHIFT"
+horizontal_alignment = 1

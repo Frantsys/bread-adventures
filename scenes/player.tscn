@@ -5,6 +5,10 @@
 [ext_resource type="Texture2D" uid="uid://dxj4g3vp4qp04" path="res://sprites/1 - Penguin/Belly_Sliding (16 x 16).png" id="2_qlg0r"]
 [ext_resource type="Texture2D" uid="uid://dapbrx5dpp438" path="res://sprites/1 - Penguin/Jump (16 x 16).png" id="3_dqkch"]
 [ext_resource type="Texture2D" uid="uid://btqhtyr23c147" path="res://sprites/1 - Penguin/Waddling (16 x 16).png" id="4_qlg0r"]
+[ext_resource type="AudioStream" path="res://assets/sfx/jump.wav" id="5_jump"]
+[ext_resource type="AudioStream" path="res://assets/sfx/coin.wav" id="6_coin"]
+[ext_resource type="AudioStream" path="res://assets/sfx/powerup.wav" id="7_pw"]
+[ext_resource type="AudioStream" path="res://assets/sfx/hurt.wav" id="8_hurt"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_f1ej7"]
 atlas = ExtResource("2_qlg0r")
@@ -135,8 +139,11 @@ animations = [{
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_smehm"]
-radius = 7.0
-height = 16.0
+radius = 6.5
+height = 15.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_contact"]
+radius = 9.5
 
 [node name="Player" type="CharacterBody2D" unique_id=1585280062 groups=["player"]]
 z_index = 1
@@ -145,14 +152,15 @@ script = ExtResource("1_g2els")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=849790870]
 unique_name_in_owner = true
 sprite_frames = SubResource("SpriteFrames_fjrip")
-animation = &"dash"
+animation = &"idle"
 autoplay = "idle"
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=597665878]
+process_callback = 0
 limit_left = 0
 limit_top = 0
 limit_bottom = 208
-position_smoothing_enabled = true
+position_smoothing_enabled = false
 
 [node name="DashTimer" type="Timer" parent="." unique_id=592412068]
 wait_time = 0.25
@@ -161,13 +169,46 @@ one_shot = true
 [node name="DashCooldown" type="Timer" parent="." unique_id=1445258081]
 one_shot = true
 
+[node name="InvulnTimer" type="Timer" parent="." unique_id=1445258082]
+wait_time = 1.0
+one_shot = true
+
+[node name="DoubleJumpTimer" type="Timer" parent="." unique_id=1445258083]
+wait_time = 14.0
+one_shot = true
+
+[node name="SpeedBoostTimer" type="Timer" parent="." unique_id=1445258084]
+wait_time = 10.0
+one_shot = true
+
 [node name="ContactArea" type="Area2D" parent="." unique_id=683122870]
+collision_layer = 0
+collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ContactArea" unique_id=946094358]
-shape = SubResource("CapsuleShape2D_smehm")
+shape = SubResource("CircleShape2D_contact")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=272503399]
 shape = SubResource("CapsuleShape2D_smehm")
 
+[node name="SfxJump" type="AudioStreamPlayer" parent="." unique_id=190000001]
+stream = ExtResource("5_jump")
+volume_db = -8.0
+
+[node name="SfxCoin" type="AudioStreamPlayer" parent="." unique_id=190000002]
+stream = ExtResource("6_coin")
+volume_db = -6.0
+
+[node name="SfxPowerup" type="AudioStreamPlayer" parent="." unique_id=190000003]
+stream = ExtResource("7_pw")
+volume_db = -6.0
+
+[node name="SfxHurt" type="AudioStreamPlayer" parent="." unique_id=190000004]
+stream = ExtResource("8_hurt")
+volume_db = -4.0
+
 [connection signal="timeout" from="DashTimer" to="." method="_on_dash_timer_timeout"]
+[connection signal="timeout" from="InvulnTimer" to="." method="_on_invuln_timer_timeout"]
+[connection signal="timeout" from="DoubleJumpTimer" to="." method="_on_double_jump_timer_timeout"]
+[connection signal="timeout" from="SpeedBoostTimer" to="." method="_on_speed_boost_timer_timeout"]
 [connection signal="body_entered" from="ContactArea" to="." method="_on_area_2d_body_entered"]

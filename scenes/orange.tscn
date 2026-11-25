@@ -228,14 +228,22 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_4x54i"]
-size = Vector2(20, 18)
+size = Vector2(18, 16)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurtbox"]
+size = Vector2(20, 11)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_stompbox"]
+size = Vector2(22, 6)
 
 [node name="Orange" type="CharacterBody2D" unique_id=1451844096 groups=["enemies"]]
+collision_layer = 2
+collision_mask = 1
 script = ExtResource("1_wpr8x")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1498407480]
-position = Vector2(0, -0.4999979)
-scale = Vector2(1, 1.0312501)
+position = Vector2(0, 0)
+scale = Vector2(1, 1)
 sprite_frames = SubResource("SpriteFrames_pikmy")
 animation = &"idle"
 frame_progress = 0.99541163
@@ -251,9 +259,25 @@ one_shot = true
 [node name="Node2D" type="Node2D" parent="." unique_id=1990110348]
 
 [node name="FloorRay" type="RayCast2D" parent="Node2D" unique_id=293484546]
-position = Vector2(20, 0)
-target_position = Vector2(0, 250)
+position = Vector2(13, 4)
+target_position = Vector2(0, 28)
 
 [node name="WallRay" type="RayCast2D" parent="Node2D" unique_id=1408965435]
-position = Vector2(0, 5)
-target_position = Vector2(25, 50)
+position = Vector2(0, 6)
+target_position = Vector2(15, 0)
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=1990110349]
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1990110350]
+position = Vector2(0.5, 8.5)
+shape = SubResource("RectangleShape2D_hurtbox")
+
+[node name="StompBox" type="Area2D" parent="." unique_id=1990110351]
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StompBox" unique_id=1990110352]
+position = Vector2(0.5, -3)
+shape = SubResource("RectangleShape2D_stompbox")
