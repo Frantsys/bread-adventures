@@ -2,11 +2,23 @@ class_name Collectible extends Area2D
 
 enum ItemType { COIN, HEALTH, DOUBLE_JUMP, SPEED_BOOST, SHIELD }
 
+const BOB_SPEED := 4.5
+const BOB_AMPLITUDE_PX := 2.0
+
+const ANIMATIONS := {
+	ItemType.COIN: "coin",
+	ItemType.HEALTH: "health",
+	ItemType.DOUBLE_JUMP: "double_jump",
+	ItemType.SPEED_BOOST: "speed",
+	ItemType.SHIELD: "shield",
+}
+
 @export var item_type: ItemType = ItemType.COIN
 @export var amount: int = 1
 @export var powerup_duration: float = 12.0
 
 @onready var animated: AnimatedSprite2D = $AnimatedSprite2D
+
 var start_y: float = 0.0
 var time_acc: float = 0.0
 
@@ -16,25 +28,15 @@ func _ready() -> void:
 	_setup_visual()
 
 func _process(delta: float) -> void:
-	time_acc += delta * 4.5
-	position.y = round(start_y + sin(time_acc) * 2.0)
+	time_acc += delta * BOB_SPEED
+	position.y = round(start_y + sin(time_acc) * BOB_AMPLITUDE_PX)
 
 func _setup_visual() -> void:
 	if not animated:
 		return
-	animated.scale = Vector2(1, 1)
-	modulate = Color(1.0, 1.0, 1.0, 1.0)
-	match item_type:
-		ItemType.COIN:
-			animated.play("coin")
-		ItemType.HEALTH:
-			animated.play("health")
-		ItemType.DOUBLE_JUMP:
-			animated.play("double_jump")
-		ItemType.SPEED_BOOST:
-			animated.play("speed")
-		ItemType.SHIELD:
-			animated.play("shield")
+	animated.scale = Vector2.ONE
+	modulate = Color.WHITE
+	animated.play(ANIMATIONS[item_type])
 
 func _on_body_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):

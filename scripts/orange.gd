@@ -1,5 +1,35 @@
 class_name Orange extends CharacterBody2D
 
+# --- Movimento ---
+const SPEED := 55.0
+const DEFAULT_GRAVITY: float = 980.0
+const DESPAWN_Y := 290.0
+const TURN_COOLDOWN_OBSTACLE := 0.35
+const TURN_COOLDOWN_CHASE := 0.25
+
+# --- Perseguição ao jogador ---
+const CHASE_MIN_DISTANCE_X := 16.0
+const CHASE_MAX_DISTANCE_X := 110.0
+const CHASE_MAX_DISTANCE_Y := 32.0
+
+# --- Pisão ---
+const STOMP_BOUNCE_VELOCITY := -250.0
+const STOMP_MIN_VELOCITY_Y := -10.0
+const STOMP_HEIGHT_MARGIN := 2.0
+# A StompBox é mais tolerante que a checagem por colisão.
+const STOMPBOX_MIN_VELOCITY_Y := -15.0
+const STOMPBOX_HEIGHT_MARGIN := -1.0
+const DEFEAT_DESPAWN_DELAY := 0.28
+
+# --- Animações ---
+const ANIMATION_IDLE := "idle"
+const ANIMATION_WALK := "walking"
+const ANIMATION_FALL := "fall"
+const ANIMATION_SQUISHED := "squished"
+const ANIMATION_HURT := "hurt"
+
+@export var damage: int = 1
+
 @onready var animated: AnimatedSprite2D = $AnimatedSprite2D
 @onready var sensors: Node2D = $Node2D
 @onready var avoid_timer: Timer = $AvoidTimer
@@ -8,11 +38,6 @@ class_name Orange extends CharacterBody2D
 @onready var hurtbox: Area2D = $Hurtbox
 @onready var stompbox: Area2D = $StompBox
 @onready var body_collision: CollisionShape2D = $CollisionShape2D
-
-@export var damage: int = 1
-const SPEED := 55.0
-const DEFAULT_GRAVITY: float = 980.0
-const STOMP_BOUNCE_VELOCITY := -250.0
 
 var player: Player = null
 var direction := -1.0
@@ -31,7 +56,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if is_defeated:
 		return
-	if global_position.y > 290.0:
+	if global_position.y > DESPAWN_Y:
 		queue_free()
 		return
 
@@ -45,32 +70,13 @@ func _physics_process(delta: float) -> void:
 		update_animations(0.0)
 		return
 
-	floor_ray.force_raycast_update()
-	wall_ray.force_raycast_update()
-
-	var hit_wall := is_on_wall() or wall_ray.is_colliding()
-	var at_ledge := not floor_ray.is_colliding()
-
-	if (hit_wall or at_ledge) and turn_cooldown <= 0.0:
-		direction *= -1.0
-		update_facing(int(direction))
-		avoid_timer.start()
-		turn_cooldown = 0.35
-	elif player != null and avoid_timer.is_stopped() and turn_cooldown <= 0.0:
-		var diff := player.global_position - global_position
-		if abs(diff.x) > 16.0 and abs(diff.x) < 110.0 and abs(diff.y) < 32.0:
-			var desired_dir := signf(diff.x)
-			if desired_dir != direction:
-				direction = desired_dir
-				update_facing(int(direction))
-				turn_cooldown = 0.25
+	_update_direction()
 
 	velocity.x = direction * SPEED
 	move_and_slide()
 
 	for i in range(get_slide_collision_count()):
-		var col_info := get_slide_collision(i)
-		var col := col_info.get_collider()
+		var col := get_slide_collision(i).get_collider()
 		if col is Node and col.is_in_group("player"):
 			if _is_head_stomp(col as Node2D):
 				stomped_by(col as Node2D)
@@ -80,11 +86,36 @@ func _physics_process(delta: float) -> void:
 
 	update_animations(direction)
 
-func _is_head_stomp(body: Node2D) -> bool:
+func _update_direction() -> void:
+	floor_ray.force_raycast_update()
+	wall_ray.force_raycast_update()
+
+	var hit_wall := is_on_wall() or wall_ray.is_colliding()
+	var at_ledge := not floor_ray.is_colliding()
+
+	if (hit_wall or at_ledge) and turn_cooldown <= 0.0:
+		_set_direction(-direction, TURN_COOLDOWN_OBSTACLE)
+		avoid_timer.start()
+	elif player != null and avoid_timer.is_stopped() and turn_cooldown <= 0.0:
+		var diff := player.global_position - global_position
+		var in_range: bool = abs(diff.x) > CHASE_MIN_DISTANCE_X and abs(diff.x) < CHASE_MAX_DISTANCE_X and abs(diff.y) < CHASE_MAX_DISTANCE_Y
+		var desired_dir := signf(diff.x)
+		if in_range and desired_dir != direction:
+			_set_direction(desired_dir, TURN_COOLDOWN_CHASE)
+
+func _set_direction(new_dir: float, cooldown: float) -> void:
+	direction = new_dir
+	update_facing(int(direction))
+	turn_cooldown = cooldown
+
+func _is_stomp(body: Node2D, min_velocity_y: float, height_margin: float) -> bool:
 	if is_defeated or not body.is_in_group("player"):
 		return false
 	var vy: float = body.velocity.y if "velocity" in body else 0.0
-	return vy >= -10.0 and body.global_position.y <= global_position.y - 2.0
+	return vy >= min_velocity_y and body.global_position.y <= global_position.y - height_margin
+
+func _is_head_stomp(body: Node2D) -> bool:
+	return _is_stomp(body, STOMP_MIN_VELOCITY_Y, STOMP_HEIGHT_MARGIN)
 
 func stomped_by(body: Node2D) -> void:
 	if is_defeated:
@@ -95,12 +126,10 @@ func stomped_by(body: Node2D) -> void:
 
 	if body_collision:
 		body_collision.set_deferred("disabled", true)
-	if hurtbox:
-		hurtbox.set_deferred("monitoring", false)
-		hurtbox.set_deferred("monitorable", false)
-	if stompbox:
-		stompbox.set_deferred("monitoring", false)
-		stompbox.set_deferred("monitorable", false)
+	for area in [hurtbox, stompbox]:
+		if area:
+			area.set_deferred("monitoring", false)
+			area.set_deferred("monitorable", false)
 
 	if "velocity" in body:
 		body.velocity.y = STOMP_BOUNCE_VELOCITY
@@ -110,12 +139,12 @@ func stomped_by(body: Node2D) -> void:
 		body.on_enemy_stomped()
 
 	if animated and animated.sprite_frames:
-		if animated.sprite_frames.has_animation("squished"):
-			animated.play("squished")
-		elif animated.sprite_frames.has_animation("hurt"):
-			animated.play("hurt")
+		if animated.sprite_frames.has_animation(ANIMATION_SQUISHED):
+			animated.play(ANIMATION_SQUISHED)
+		elif animated.sprite_frames.has_animation(ANIMATION_HURT):
+			animated.play(ANIMATION_HURT)
 
-	await get_tree().create_timer(0.28).timeout
+	await get_tree().create_timer(DEFEAT_DESPAWN_DELAY).timeout
 	queue_free()
 
 func update_facing(dir: int) -> void:
@@ -126,18 +155,15 @@ func update_animations(dir: float) -> void:
 	if is_defeated:
 		return
 	if not is_on_floor():
-		animated.play("fall")
+		animated.play(ANIMATION_FALL)
 	elif dir != 0.0:
-		animated.play("walking")
+		animated.play(ANIMATION_WALK)
 		animated.flip_h = dir < 0.0
 	else:
-		animated.play("idle")
+		animated.play(ANIMATION_IDLE)
 
 func _on_stompbox_body_entered(body: Node2D) -> void:
-	if is_defeated or not body.is_in_group("player"):
-		return
-	var vy: float = body.velocity.y if "velocity" in body else 0.0
-	if vy >= -15.0 and body.global_position.y <= global_position.y + 1.0:
+	if _is_stomp(body, STOMPBOX_MIN_VELOCITY_Y, STOMPBOX_HEIGHT_MARGIN):
 		stomped_by(body)
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:

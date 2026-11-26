@@ -1,5 +1,11 @@
 class_name HUD extends CanvasLayer
 
+const ICON_ACTIVE_COLOR := Color.WHITE
+const ICON_INACTIVE_COLOR := Color(0.28, 0.28, 0.32, 0.35)
+const COINS_FORMAT := "%02d"
+const SCORE_FORMAT := "%05d"
+const GAME_OVER_TEXT := "GAME OVER"
+
 @onready var hearts_container: HBoxContainer = $TopBar/LeftPanel/VBox/HeartsContainer
 @onready var hearts_template: Control = $TopBar/LeftPanel/VBox/HeartsContainer/HeartsTemplate
 @onready var coins_label: Label = $TopBar/LeftPanel/VBox/CoinsRow/CoinsLabel
@@ -28,24 +34,22 @@ func update_hearts(current_health: int) -> void:
 
 func update_coins(current_coins: int) -> void:
 	if coins_label:
-		coins_label.text = "%02d" % current_coins
+		coins_label.text = COINS_FORMAT % current_coins
 
 func update_score(current_score: int) -> void:
 	if score_label:
-		score_label.text = "%05d" % current_score
+		score_label.text = SCORE_FORMAT % current_score
 
 func update_powerup_icons(state: Dictionary) -> void:
-	if icon_double_jump:
-		var dj_active: bool = bool(state.get("double_jump", false))
-		icon_double_jump.modulate = Color(1, 1, 1, 1) if dj_active else Color(0.28, 0.28, 0.32, 0.35)
-	if icon_speed:
-		var sp_active: bool = bool(state.get("speed", false))
-		icon_speed.modulate = Color(1, 1, 1, 1) if sp_active else Color(0.28, 0.28, 0.32, 0.35)
-	if icon_shield:
-		var sh_active: bool = bool(state.get("shield", false))
-		icon_shield.modulate = Color(1, 1, 1, 1) if sh_active else Color(0.28, 0.28, 0.32, 0.35)
+	_set_icon_active(icon_double_jump, state.get("double_jump", false))
+	_set_icon_active(icon_speed, state.get("speed", false))
+	_set_icon_active(icon_shield, state.get("shield", false))
+
+func _set_icon_active(icon: TextureRect, active: bool) -> void:
+	if icon:
+		icon.modulate = ICON_ACTIVE_COLOR if active else ICON_INACTIVE_COLOR
 
 func show_game_over() -> void:
 	if status_panel and status_label:
-		status_label.text = "GAME OVER"
+		status_label.text = GAME_OVER_TEXT
 		status_panel.visible = true
