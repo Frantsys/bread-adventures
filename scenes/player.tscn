@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://ch33if222el52"]
 
 [ext_resource type="Texture2D" uid="uid://dx23lhwichl3r" path="res://sprites/1 - Penguin/Idle (16 x 16).png" id="1_3vyb7"]
-[ext_resource type="Script" uid="uid://ct1sd32ar3p0n" path="res://scripts/player.gd" id="1_g2els"]
+[ext_resource type="Script" uid="uid://ct1sd32ar3p0n" path="res://scripts/player/player.gd" id="1_g2els"]
 [ext_resource type="Texture2D" uid="uid://dxj4g3vp4qp04" path="res://sprites/1 - Penguin/Belly_Sliding (16 x 16).png" id="2_qlg0r"]
 [ext_resource type="Texture2D" uid="uid://dapbrx5dpp438" path="res://sprites/1 - Penguin/Jump (16 x 16).png" id="3_dqkch"]
 [ext_resource type="Texture2D" uid="uid://btqhtyr23c147" path="res://sprites/1 - Penguin/Waddling (16 x 16).png" id="4_qlg0r"]

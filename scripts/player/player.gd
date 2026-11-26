@@ -1,4 +1,6 @@
 class_name Player extends CharacterBody2D
+## O jogador: movimento, pulo, dash, dano, power-ups e pontuação.
+## Valores de ajuste ficam em PlayerConfig; animação e cor em PlayerVisuals.
 
 signal health_change(health_value: int)
 signal coins_change(coins_value: int)
@@ -6,54 +8,7 @@ signal score_change(score_value: int)
 signal powerup_state_change(state: Dictionary)
 signal player_died
 
-# --- Movimento ---
-const BASE_SPEED := 115.0
-const BOOSTED_SPEED := 175.0
-const JUMP_VELOCITY := -315.0
-const DOUBLE_JUMP_VELOCITY := -295.0
-const DEFAULT_DASH_SPEED := 310.0
-const FLOOR_SNAP_LENGTH := 4.0
-const JUMP_CUT_MIN_VELOCITY := -120.0
-const JUMP_CUT_MULTIPLIER := 0.65
-const COYOTE_MAX := 0.11
-const JUMP_BUFFER_MAX := 0.11
-const PIT_LIMIT_Y := 275.0
-
-# --- Combate ---
-const DEFAULT_HEALTH := 5
-const MAX_HEALTH := 5
-const DEFAULT_ENEMY_DAMAGE := 1
-const STOMP_MIN_VELOCITY_Y := -10.0
-const STOMP_HEIGHT_MARGIN := 2.0
-const KNOCKBACK_VELOCITY := Vector2(150.0, -170.0)
-const DEATH_RELOAD_DELAY := 0.8
-
-# --- Power-ups ---
-const DOUBLE_JUMP_DURATION := 14.0
-const SPEED_BOOST_DURATION := 10.0
-
-# --- Pontuação ---
-const TILE_SIZE_PX := 16.0
-const POINTS_PER_TILE := 10
-const POINTS_PER_COIN := 50
-const POINTS_PER_STOMP := 100
-const POINTS_HEAL := 50
-const POINTS_TIMED_POWERUP := 75
-const POINTS_SHIELD := 100
-
-# --- Animações ---
-const ANIMATION_IDLE := "idle"
-const ANIMATION_JUMP := "jump"
-const ANIMATION_WALK := "walk"
-const ANIMATION_DASH := "dash"
-
-# --- Cores de estado ---
-const TINT_DEAD := Color(1.0, 0.3, 0.3, 0.8)
-const TINT_INVULNERABLE := Color(1.0, 0.45, 0.45, 0.75)
-const TINT_SHIELD := Color(0.65, 1.0, 0.75, 1.0)
-const TINT_SPEED := Color(1.0, 0.88, 0.45, 1.0)
-const TINT_DOUBLE_JUMP := Color(0.65, 0.92, 1.0, 1.0)
-const TINT_NORMAL := Color.WHITE
+const P = preload("res://scripts/player/player_config.gd")
 
 @onready var dash_timer: Timer = $DashTimer
 @onready var dash_cooldown: Timer = $DashCooldown
@@ -93,9 +48,9 @@ var bonus_score := 0:
 		bonus_score = max(value, 0)
 		_emit_score()
 
-var health := DEFAULT_HEALTH:
+var health := P.DEFAULT_HEALTH:
 	set(value):
-		health = clamp(value, 0, MAX_HEALTH)
+		health = clamp(value, 0, P.MAX_HEALTH)
 		health_change.emit(health)
 		if health <= 0 and not is_dead:
 			die()
@@ -106,7 +61,7 @@ var health := DEFAULT_HEALTH:
 
 func _ready() -> void:
 	add_to_group("player")
-	floor_snap_length = FLOOR_SNAP_LENGTH
+	floor_snap_length = P.FLOOR_SNAP_LENGTH
 	start_x = global_position.x
 	health_change.emit(health)
 	coins_change.emit(coins)
@@ -117,7 +72,7 @@ func _physics_process(delta: float) -> void:
 	if is_dead:
 		return
 
-	if global_position.y > PIT_LIMIT_Y:
+	if global_position.y > P.PIT_LIMIT_Y:
 		fall_in_pit()
 		return
 
@@ -133,7 +88,7 @@ func _physics_process(delta: float) -> void:
 	var direction := Input.get_axis("ui_left", "ui_right")
 	_handle_horizontal(direction)
 
-	_update_animations(direction)
+	PlayerVisuals.update_animation(self, animated, direction)
 	move_and_slide()
 	_check_enemy_contact()
 
@@ -149,7 +104,7 @@ func _track_distance() -> void:
 
 func _apply_floor_state_and_gravity(delta: float) -> void:
 	if is_on_floor():
-		coyote_timer = COYOTE_MAX
+		coyote_timer = P.COYOTE_MAX
 		jump_count = 0
 		can_air_dash = true
 		stomp_combo = 0
@@ -159,7 +114,7 @@ func _apply_floor_state_and_gravity(delta: float) -> void:
 
 func _handle_jump(delta: float) -> void:
 	if Input.is_action_just_pressed("ui_accept"):
-		jump_buffer_timer = JUMP_BUFFER_MAX
+		jump_buffer_timer = P.JUMP_BUFFER_MAX
 	else:
 		jump_buffer_timer = maxf(jump_buffer_timer - delta, 0.0)
 
@@ -167,23 +122,23 @@ func _handle_jump(delta: float) -> void:
 
 	if jump_buffer_timer > 0.0:
 		if coyote_timer > 0.0:
-			velocity.y = JUMP_VELOCITY
+			velocity.y = P.JUMP_VELOCITY
 			jump_count = 1
 			coyote_timer = 0.0
 			jump_buffer_timer = 0.0
 			_play_sfx(sfx_jump)
 		elif jump_count < max_jumps:
-			velocity.y = DOUBLE_JUMP_VELOCITY
+			velocity.y = P.DOUBLE_JUMP_VELOCITY
 			jump_count += 1
 			jump_buffer_timer = 0.0
 			_play_sfx(sfx_jump)
 
 	# Pulo variável: soltar o botão cedo corta a subida.
-	if Input.is_action_just_released("ui_accept") and velocity.y < JUMP_CUT_MIN_VELOCITY:
-		velocity.y *= JUMP_CUT_MULTIPLIER
+	if Input.is_action_just_released("ui_accept") and velocity.y < P.JUMP_CUT_MIN_VELOCITY:
+		velocity.y *= P.JUMP_CUT_MULTIPLIER
 
 func _handle_horizontal(direction: float) -> void:
-	var current_speed := BOOSTED_SPEED if has_speed_boost else BASE_SPEED
+	var current_speed := P.BOOSTED_SPEED if has_speed_boost else P.BASE_SPEED
 	if direction == 0.0:
 		velocity.x = move_toward(velocity.x, 0.0, current_speed)
 		return
@@ -193,7 +148,7 @@ func _handle_horizontal(direction: float) -> void:
 			can_air_dash = false
 		dash_timer.start()
 		is_dashing = true
-		velocity.x = direction * DEFAULT_DASH_SPEED
+		velocity.x = direction * P.DEFAULT_DASH_SPEED
 		velocity.y = 0.0
 	else:
 		velocity.x = direction * current_speed
@@ -203,8 +158,8 @@ func _handle_horizontal(direction: float) -> void:
 # =========================================================
 
 func _emit_score() -> void:
-	var dist_pts := int(max_distance_px / TILE_SIZE_PX) * POINTS_PER_TILE
-	var total := dist_pts + (coins * POINTS_PER_COIN) + bonus_score
+	var dist_pts := int(max_distance_px / P.TILE_SIZE_PX) * P.POINTS_PER_TILE
+	var total := dist_pts + (coins * P.POINTS_PER_COIN) + bonus_score
 	score_change.emit(total)
 
 # =========================================================
@@ -232,7 +187,7 @@ func _resolve_enemy_contact(enemy: Node) -> void:
 		_apply_enemy_hit(enemy)
 
 func _try_stomp_enemy(enemy: Node) -> bool:
-	if enemy is Node2D and velocity.y >= STOMP_MIN_VELOCITY_Y and global_position.y <= enemy.global_position.y - STOMP_HEIGHT_MARGIN:
+	if enemy is Node2D and velocity.y >= P.STOMP_MIN_VELOCITY_Y and global_position.y <= enemy.global_position.y - P.STOMP_HEIGHT_MARGIN:
 		if enemy.has_method("stomped_by"):
 			enemy.stomped_by(self)
 			return true
@@ -243,13 +198,13 @@ func on_enemy_stomped() -> void:
 	can_air_dash = true
 	stomp_combo += 1
 	coins += stomp_combo
-	bonus_score += POINTS_PER_STOMP * stomp_combo
+	bonus_score += P.POINTS_PER_STOMP * stomp_combo
 
 func _apply_enemy_hit(enemy: Node) -> void:
 	var push_dir := signf(global_position.x - enemy.global_position.x)
 	if push_dir == 0.0:
 		push_dir = -1.0
-	velocity = Vector2(push_dir * KNOCKBACK_VELOCITY.x, KNOCKBACK_VELOCITY.y)
+	velocity = Vector2(push_dir * P.KNOCKBACK_VELOCITY.x, P.KNOCKBACK_VELOCITY.y)
 
 	if has_shield:
 		has_shield = false
@@ -260,7 +215,7 @@ func _apply_enemy_hit(enemy: Node) -> void:
 		_update_visual_tint()
 		return
 
-	var dmg := DEFAULT_ENEMY_DAMAGE
+	var dmg := P.DEFAULT_ENEMY_DAMAGE
 	if "damage" in enemy:
 		dmg = enemy.damage
 	take_damage(dmg)
@@ -287,7 +242,7 @@ func die() -> void:
 	velocity = Vector2.ZERO
 	_update_visual_tint()
 	player_died.emit()
-	await get_tree().create_timer(DEATH_RELOAD_DELAY).timeout
+	await get_tree().create_timer(P.DEATH_RELOAD_DELAY).timeout
 	if is_inside_tree():
 		get_tree().reload_current_scene()
 
@@ -300,7 +255,7 @@ func heal(amount: int = 1) -> void:
 		return
 	_play_sfx(sfx_powerup)
 	health += amount
-	bonus_score += POINTS_HEAL
+	bonus_score += P.POINTS_HEAL
 
 func add_coins(amount: int = 1) -> void:
 	if is_dead:
@@ -308,26 +263,26 @@ func add_coins(amount: int = 1) -> void:
 	_play_sfx(sfx_coin)
 	coins += amount
 
-func grant_double_jump(duration: float = DOUBLE_JUMP_DURATION) -> void:
+func grant_double_jump(duration: float = P.DOUBLE_JUMP_DURATION) -> void:
 	if is_dead:
 		return
 	_start_timed_powerup(double_jump_timer, duration)
 	has_double_jump = true
-	_after_powerup(POINTS_TIMED_POWERUP)
+	_after_powerup(P.POINTS_TIMED_POWERUP)
 
-func grant_speed_boost(duration: float = SPEED_BOOST_DURATION) -> void:
+func grant_speed_boost(duration: float = P.SPEED_BOOST_DURATION) -> void:
 	if is_dead:
 		return
 	_start_timed_powerup(speed_boost_timer, duration)
 	has_speed_boost = true
-	_after_powerup(POINTS_TIMED_POWERUP)
+	_after_powerup(P.POINTS_TIMED_POWERUP)
 
 func grant_shield() -> void:
 	if is_dead:
 		return
 	_play_sfx(sfx_powerup)
 	has_shield = true
-	_after_powerup(POINTS_SHIELD)
+	_after_powerup(P.POINTS_SHIELD)
 
 func _start_timed_powerup(timer: Timer, duration: float) -> void:
 	_play_sfx(sfx_powerup)
@@ -340,37 +295,11 @@ func _after_powerup(points: int) -> void:
 	_refresh_powerup_hud()
 
 # =========================================================
-# Visual / áudio
+# Visual / áudio / HUD
 # =========================================================
 
-func _update_animations(direction: float) -> void:
-	if is_dashing:
-		animated.play(ANIMATION_DASH)
-		return
-
-	if direction != 0.0:
-		animated.flip_h = direction < 0.0
-
-	if not is_on_floor():
-		animated.play(ANIMATION_JUMP)
-	elif direction != 0.0:
-		animated.play(ANIMATION_WALK)
-	else:
-		animated.play(ANIMATION_IDLE)
-
 func _update_visual_tint() -> void:
-	if is_dead:
-		modulate = TINT_DEAD
-	elif invulnerable:
-		modulate = TINT_INVULNERABLE
-	elif has_shield:
-		modulate = TINT_SHIELD
-	elif has_speed_boost:
-		modulate = TINT_SPEED
-	elif has_double_jump:
-		modulate = TINT_DOUBLE_JUMP
-	else:
-		modulate = TINT_NORMAL
+	modulate = PlayerVisuals.tint_for(self)
 
 func _refresh_powerup_hud() -> void:
 	powerup_state_change.emit({

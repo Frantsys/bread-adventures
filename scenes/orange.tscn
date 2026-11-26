@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bvgp22f34jbib"]
 
 [ext_resource type="Texture2D" uid="uid://cwlpbrqkcqo1v" path="res://sprites/4 - Orange/Idle (32 x 32).png" id="1_jrtoq"]
-[ext_resource type="Script" uid="uid://dbspmlkveyeq8" path="res://scripts/orange.gd" id="1_wpr8x"]
+[ext_resource type="Script" uid="uid://dbspmlkveyeq8" path="res://scripts/enemies/orange.gd" id="1_wpr8x"]
 [ext_resource type="Texture2D" uid="uid://d1jaxq0kfb85" path="res://sprites/4 - Orange/Blink (32 x 32).png" id="2_5rnxj"]
 [ext_resource type="Texture2D" uid="uid://fjx8a4ffjo11" path="res://sprites/4 - Orange/Walking (32 x 32).png" id="2_wpr8x"]
 [ext_resource type="Texture2D" uid="uid://dbv3gogdcme6c" path="res://sprites/4 - Orange/Falling (32 x 32).png" id="3_4x54i"]
